@@ -646,7 +646,7 @@ endeavouros_build_iso_package_required () {
 
 
 	util_error_echo
-	util_error_echo "pacman -S --needed --noconfirm archiso mkinitcpio-archiso"
+	util_error_echo pacman -S --needed --noconfirm archiso mkinitcpio-archiso
 	util_error_echo
 	pacman -S --needed --noconfirm archiso mkinitcpio-archiso
 
