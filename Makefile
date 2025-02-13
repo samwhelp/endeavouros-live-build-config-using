@@ -10,11 +10,20 @@ help:
 	@echo '	$$ make'
 	@echo '	$$ make help'
 	@echo
+	@echo '	$$ make eos-keyring-add'
+	@echo
 	@echo '	$$ make prepare'
 	@echo
 	@echo '	$$ make build'
 	@echo
 .PHONY: help
+
+
+
+
+eos-keyring-add:
+	@./eos-keyring-add.sh
+.PHONY: eos-keyring-add
 
 
 
