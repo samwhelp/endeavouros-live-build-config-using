@@ -19,6 +19,9 @@
 
 * Arch Wiki / [pacman/Package signing](https://wiki.archlinux.org/title/Pacman/Package_signing)
 * GitHub / endeavouros-team / iso-autobuild / [add-EndeavourOS](https://github.com/endeavouros-team/iso-autobuild/blob/main/add-EndeavourOS)
+* GitHub / endeavouros-team / PKGBUILDS / [endeavouros-mirrorlist](https://github.com/endeavouros-team/PKGBUILDS/blob/master/endeavouros-mirrorlist/endeavouros-mirrorlist)
+* GitHub / endeavouros-team / PKGBUILDS / [endeavouros-keyring](https://github.com/endeavouros-team/PKGBUILDS/tree/master/endeavouros-keyring)
+
 
 
 
