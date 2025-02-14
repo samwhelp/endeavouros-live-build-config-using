@@ -12,6 +12,8 @@ help:
 	@echo
 	@echo '	$$ make eos-keyring-add'
 	@echo
+	@echo '	$$ make eos-repo-add'
+	@echo
 	@echo '	$$ make prepare'
 	@echo
 	@echo '	$$ make build'
@@ -24,6 +26,13 @@ help:
 eos-keyring-add:
 	@./eos-keyring-add.sh
 .PHONY: eos-keyring-add
+
+
+
+
+eos-repo-add:
+	@./eos-repo-add.sh
+.PHONY: eos-repo-add
 
 
 

@@ -4,7 +4,7 @@
 
 
 ##
-## # Build Endeavouros ISO / Steps / eos-keyring-add
+## # Build Endeavouros ISO / Steps / eos-repo-add
 ##
 
 
@@ -247,10 +247,10 @@ master_var_dump
 
 
 ##
-## ## Endeavouros / Keyring Add / Package Required
+## ## Endeavouros / Repository Add / Package Required
 ##
 
-endeavouros_keyring_add_package_required () {
+endeavouros_repository_add_package_required () {
 
 	#return 0
 
@@ -262,9 +262,9 @@ endeavouros_keyring_add_package_required () {
 
 
 	util_error_echo
-	util_error_echo sudo pacman -Sy --needed --noconfirm archlinux-keyring
+	util_error_echo sudo pacman -Sy --needed --noconfirm archlinux-keyring curl wget
 	util_error_echo
-	sudo pacman -Sy --needed --noconfirm archlinux-keyring
+	sudo pacman -Sy --needed --noconfirm archlinux-keyring curl wget
 
 
 
@@ -278,14 +278,14 @@ endeavouros_keyring_add_package_required () {
 
 
 ##
-## ## Endeavouros / Keyring Add / Main
+## ## Endeavouros / Repository Add / Main
 ##
 
-endeavouros_keyring_add_main () {
+endeavouros_repository_add_main () {
 
 	util_error_echo
 	util_error_echo "##"
-	util_error_echo "## ## Endeavouros / Keyring Add / Main"
+	util_error_echo "## ## Endeavouros / Repository Add / Main"
 	util_error_echo "##"
 	util_error_echo
 
@@ -299,39 +299,210 @@ endeavouros_keyring_add_main () {
 
 
 	##
-	## ## init
+	## ## config pacman mirrorlist
 	##
 
-	util_error_echo
-	util_error_echo sudo pacman-key --init
-	util_error_echo
-	sudo pacman-key --init
+	endeavouros_repository_add_config_pacman_mirrorlist
 
 
 	##
-	## ## add keyring
+	## ## config /etc/pacman.conf
 	##
 
-	util_error_echo
-	util_error_echo sudo pacman-key --recv-key 0F20FADC599D1C46EB556455AED8858E4B9813F1 --keyserver keyserver.ubuntu.com && sudo pacman-key --lsign-key 0F20FADC599D1C46EB556455AED8858E4B9813F1
-	util_error_echo
-	sudo pacman-key --recv-key 0F20FADC599D1C46EB556455AED8858E4B9813F1 --keyserver keyserver.ubuntu.com && sudo pacman-key --lsign-key 0F20FADC599D1C46EB556455AED8858E4B9813F1
+	endeavouros_repository_add_config_pacman_conf
 
-
-	util_error_echo
-	util_error_echo sudo pacman-key --recv-key 497AF50C92AD2384C56E1ACA003DB8B0CB23504F --keyserver keyserver.ubuntu.com && sudo pacman-key --lsign-key 497AF50C92AD2384C56E1ACA003DB8B0CB23504F
-	util_error_echo
-	sudo pacman-key --recv-key 497AF50C92AD2384C56E1ACA003DB8B0CB23504F --keyserver keyserver.ubuntu.com && sudo pacman-key --lsign-key 497AF50C92AD2384C56E1ACA003DB8B0CB23504F
 
 
 	##
-	## ## install endeavouros-keyring
+	## ## repository data refresh
 	##
 
-	#util_error_echo
-	#util_error_echo sudo pacman -Sy --noconfirm endeavouros-keyring
-	#util_error_echo
-	#sudo pacman -Sy --noconfirm endeavouros-keyring
+	endeavouros_repository_add_reflash
+
+
+
+	##
+	## ## install endeavouros-keyring by package
+	##
+
+	endeavouros_repository_add_install_endeavouros_keyring
+
+
+	##
+	## ## install endeavouros-mirrorlist by package
+	##
+
+	#endeavouros_repository_add_install_endeavouros_mirrorlist
+
+
+
+	return 0
+}
+
+
+endeavouros_repository_add_config_pacman_mirrorlist () {
+
+	endeavouros_repository_add_config_pacman_mirrorlist_by_custom
+
+	#endeavouros_repository_add_config_pacman_mirrorlist_by_download
+
+	return 0
+
+}
+
+endeavouros_repository_add_config_pacman_mirrorlist_by_custom () {
+
+
+cat << __EOF__ | sudo tee '/etc/pacman.d/endeavouros-mirrorlist'
+
+## Taiwan
+Server = https://mirror.archlinux.tw/EndeavourOS/repo/\$repo/\$arch
+
+## United States
+Server = https://mirrors.gigenet.com/endeavouros/repo/\$repo/\$arch
+
+__EOF__
+
+
+	return 0
+}
+
+endeavouros_repository_add_config_pacman_mirrorlist_by_download () {
+
+
+	util_error_echo
+	util_error_echo sudo curl -fLo '/etc/pacman.d/endeavouros-mirrorlist' --create-dirs 'https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/endeavouros-mirrorlist/endeavouros-mirrorlist'
+	util_error_echo
+	sudo curl -fLo '/etc/pacman.d/endeavouros-mirrorlist' --create-dirs 'https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/endeavouros-mirrorlist/endeavouros-mirrorlist'
+
+
+	return 0
+}
+
+endeavouros_repository_add_config_pacman_conf () {
+
+	##
+	## ## Check Exist
+	##
+
+	if grep '## ## EndeavourOS Repository Mirrorlist' '/etc/pacman.conf' > /dev/null; then
+
+		return 0
+
+	fi
+
+
+	##
+	## ## Config
+	##
+
+cat << __EOF__ | sudo tee -a '/etc/pacman.conf'
+
+##
+## ## EndeavourOS Repository Mirrorlist
+##
+
+[endeavouros]
+SigLevel = PackageRequired
+Include = /etc/pacman.d/endeavouros-mirrorlist
+
+__EOF__
+
+
+	return 0
+}
+
+endeavouros_repository_add_reflash () {
+
+	util_error_echo
+	util_error_echo sudo pacman -Sy --noconfirm
+	util_error_echo
+	sudo pacman -Sy --noconfirm
+
+
+	return 0
+}
+
+endeavouros_repository_add_install_endeavouros_keyring () {
+
+	util_error_echo
+	util_error_echo sudo pacman -S --noconfirm endeavouros-keyring
+	util_error_echo
+	sudo pacman -S --noconfirm endeavouros-keyring
+
+
+	return 0
+}
+
+endeavouros_repository_add_install_endeavouros_mirrorlist () {
+
+	util_error_echo
+	util_error_echo sudo pacman -S --noconfirm endeavouros-mirrorlist
+	util_error_echo
+	sudo pacman -S --noconfirm endeavouros-mirrorlist
+
+
+	return 0
+}
+
+
+##
+## ## Endeavouros / Repository Add / Steps
+##
+
+endeavouros_repository_add_develop_test () {
+
+
+	util_error_echo
+	util_error_echo "##"
+	util_error_echo "## ## Run / endeavouros_repository_add_develop_test"
+	util_error_echo "##"
+	util_error_echo
+
+
+
+	endeavouros_repository_add_develop_test_prototype
+
+}
+
+endeavouros_repository_add_develop_test_prototype () {
+
+	util_error_echo
+	util_error_echo "##"
+	util_error_echo "## ## Run / endeavouros_repository_add_develop_test_prototype"
+	util_error_echo "##"
+	util_error_echo
+
+
+	#endeavouros_repository_add_package_required
+
+
+	#endeavouros_repository_add_main
+
+
+
+
+
+
+	return 0
+}
+
+
+endeavouros_repository_add_steps () {
+
+
+	util_error_echo
+	util_error_echo "##"
+	util_error_echo "## ## Run / endeavouros_repository_add_steps"
+	util_error_echo "##"
+	util_error_echo
+
+
+
+	endeavouros_repository_add_package_required
+
+
+	endeavouros_repository_add_main
 
 
 	return 0
@@ -340,86 +511,20 @@ endeavouros_keyring_add_main () {
 
 
 
-
 ##
-## ## Endeavouros / Keyring Add / Steps
-##
-
-endeavouros_keyring_add_develop_test () {
-
-
-	util_error_echo
-	util_error_echo "##"
-	util_error_echo "## ## Run / endeavouros_keyring_add_develop_test"
-	util_error_echo "##"
-	util_error_echo
-
-
-
-	endeavouros_keyring_add_develop_test_prototype
-
-}
-
-endeavouros_keyring_add_develop_test_prototype () {
-
-	util_error_echo
-	util_error_echo "##"
-	util_error_echo "## ## Run / endeavouros_keyring_add_develop_test_prototype"
-	util_error_echo "##"
-	util_error_echo
-
-
-	#endeavouros_keyring_add_package_required
-
-
-	#endeavouros_keyring_add_main
-
-
-
-
-
-
-	return 0
-}
-
-
-endeavouros_keyring_add_steps () {
-
-
-	util_error_echo
-	util_error_echo "##"
-	util_error_echo "## ## Run / endeavouros_keyring_add_steps"
-	util_error_echo "##"
-	util_error_echo
-
-
-
-	endeavouros_keyring_add_package_required
-
-
-	endeavouros_keyring_add_main
-
-
-	return 0
-}
-
-
-
-
-##
-## ## Endeavouros / Keyring Add / Start
+## ## Endeavouros / Repository Add / Start
 ##
 
-endeavouros_keyring_add_start () {
+endeavouros_repository_add_start () {
 
 	main_signal_bind
 
 	local main_run="${REF_MAIN_RUN}"
 
 	if [[ "${main_run}" == "test" ]]; then
-		endeavouros_keyring_add_develop_test
+		endeavouros_repository_add_develop_test
 	else
-		endeavouros_keyring_add_steps
+		endeavouros_repository_add_steps
 	fi
 
 
@@ -433,7 +538,7 @@ endeavouros_keyring_add_start () {
 
 model_start () {
 
-	endeavouros_keyring_add_start "${@}"
+	endeavouros_repository_add_start "${@}"
 
 	return 0
 }
