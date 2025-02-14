@@ -31,7 +31,7 @@
 
 sudo pacman -Sy -noconfirm
 
-sudo pacman -S --needed --noconfirm archlinux-keyring
+sudo pacman -S --needed --noconfirm archlinux-keyring curl wget
 
 ```
 
